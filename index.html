@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+         <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+         <link rel="stylesheet" href="css/mintstyle.css">
+    <link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="https://webapi.amap.com/maps?v=1.4.10&key=15efd4e3a25f1ca60c9b9dd8181db92d&plugin=AMap.Autocomplete,AMap.PlaceSearch"></script>
+    <script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+        <style>
+        .auto-item{text-align: left}
+        .input-card{
+          position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-family: "Microsoft Yahei", Pinghei;
+    font-size: 14px;
+    background: none 0px 0px repeat scroll rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(204, 204, 204);
+    border-image: initial;
+    margin: 10px auto;
+    padding: 6px;
+    text-align: left
+        }
+        #map-features .input-item {
+      height: 2rem;
+    }
+/*#container {width:1200px; height: 800px;left:50%;margin-left:-600px;} */ 
+        </style>
+    </head>
+    <body style="text-align: center;">
+       <div id="container"></div>
+        <div id="myPageTop">
+          <table>
+              <tr>
+                  <td>
+                      <label>请输入关键字：</label>
+                  </td>
+              </tr>
+              <tr>
+                  <td>
+                      <input id="tipinput"/>
+                  </td>
+              </tr>
+          </table>
+        </div>
+    <div class="input-card" style="width:19rem">
+    <h4>设置地图显示要素</h4>
+    <div id="map-features">
+      <div class="input-item">
+        <input type='checkbox' name='mapStyle' value='bg' checked>
+        <span class="input-text">区域面</span>
+      </div>
+      <div class="input-item">
+        <input type='checkbox' name='mapStyle' value='road' checked>
+        <span class="input-text">道路</span>
+      </div>
+      <div class="input-item">
+        <input type='checkbox' name='mapStyle' value='building' checked>
+        <span class="input-text">建筑物</span>
+      </div>
+      <div class="input-item">
+        <input type='checkbox' name='mapStyle' value='point' checked>
+        <span class="input-text">标注</span>
+      </div>
+    </div>
+  </div>
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/vue.js"></script>
+        <script src="js/mint.js"></script> 
+    </body>
+</html>
+<script>
+// var URL = 'http://192.168.6.74:9080/api/';
+
+var map = new AMap.Map('container', {
+        zoom:11,//级别
+        resizeEnable: true,
+        viewMode:'3D',//使用3D视图
+        features: ['bg', 'road', 'building', 'point']
+    });
+   //实时路况图层
+    var trafficLayer = new AMap.TileLayer.Traffic({
+        zIndex: 10
+    });
+    trafficLayer.setMap(map); 
+  //输入提示
+    var autoOptions = {
+        input: "tipinput"
+    };
+    var auto = new AMap.Autocomplete(autoOptions);
+    var placeSearch = new AMap.PlaceSearch({
+        map: map
+    });  //构造地点查询类
+    AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+    function select(e) {
+        console.log(e)
+        placeSearch.setCity(e.poi.adcode);
+        placeSearch.search(e.poi.name);  //关键字查询查询
+    }
+    //设置地图显示要素
+    function setMapFeatures() {
+      var features = [];
+      var inputs = document.querySelectorAll("#map-features input");
+      inputs.forEach(function(input) {
+        if (input.checked) {
+          features.push(input.value);
+        }
+      });
+      map.setFeatures(features);
+    }
+
+    //绑定checkbox点击事件
+    var inputs = document.querySelectorAll("#map-features input");
+    inputs.forEach(function(checkbox) {
+      checkbox.onclick = setMapFeatures;
+    });
+</script>
+
+
